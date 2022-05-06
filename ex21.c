@@ -40,23 +40,41 @@ int main(int argc, char *argv[]) {
     char *endBuff2 = &buff2[readNum2];
     char *p1 = buff1;
     char *p2 = buff2;
-
+    int balance =0;
     while (1) {
         if(readNum1 == 0 && readNum2 == 0) {
             break;
         }
+
         while ((*p1 == ' ' || *p1 == '\n') && p1 != endBuff1 && readNum1) {
             p1++;
+            balance++;
         }
         while ((*p2 == ' ' || *p2 == '\n') && p2 != endBuff2 && readNum2) {
             p2++;
+            balance--;
         }
-        if(p1 == endBuff1) {
+        if(balance != 0) {
+            isCapDiff = 1;
+        }
+        if(p1 == endBuff1 && readNum1) {
             readNum1 = read(fd1, buff1, SIZE);
+            if(readNum1 < 0) {
+                close(fd1);
+                close(fd2);
+                perror("Error in ex21");
+                exit(-1);
+            }
             continue;
         }
-        if(p2 == endBuff2) {
+        if(p2 == endBuff2 && readNum2) {
             readNum2 = read(fd2, buff2, SIZE);
+            if(readNum2 < 0) {
+                close(fd1);
+                close(fd2);
+                perror("Error in ex21");
+                exit(-1);
+            }
             continue;
         }
         if (*p1 == *p2) {
@@ -75,6 +93,17 @@ int main(int argc, char *argv[]) {
             continue;
         }
 
-    }
 
+    }
+    if(isCapDiff) {
+        setenv("?", "3", 1);
+        close(fd1);
+        close(fd2);
+        exit(3);
+    } else {
+        setenv("?", "1", 1);
+        close(fd1);
+        close(fd2);
+        exit(1);
+    }
 }
