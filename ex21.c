@@ -7,7 +7,6 @@
 #include "sys/types.h"
 #include "dirent.h"
 #include "errno.h"
-#include "math.h"
 
 #define SIZE 100
 
@@ -42,9 +41,8 @@ int main(int argc, char *argv[]) {
     char *p2 = buff2;
     int balance =0;
     while (1) {
-        if(readNum1 == 0 && readNum2 == 0) {
+        if(readNum1 == 0 && readNum2 == 0)
             break;
-        }
 
         while ((*p1 == ' ' || *p1 == '\n') && p1 != endBuff1 && readNum1) {
             p1++;
@@ -82,10 +80,9 @@ int main(int argc, char *argv[]) {
             p2++;
             continue;
         }
-        if (abs(*p2 - *p1) != 32) {
-            setenv("?", "2", 1);
+        if (abs(*p2 - *p1) != 32)
             return 2;
-        }
+
         if (abs(*p2 - *p1) == 32) {
             isCapDiff = 1;
             p1++;
@@ -96,12 +93,10 @@ int main(int argc, char *argv[]) {
 
     }
     if(isCapDiff) {
-        setenv("?", "3", 1);
         close(fd1);
         close(fd2);
         exit(3);
     } else {
-        setenv("?", "1", 1);
         close(fd1);
         close(fd2);
         exit(1);

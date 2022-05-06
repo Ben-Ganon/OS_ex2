@@ -3,4 +3,4 @@ project(OS_ex2 C)
 
 set(CMAKE_C_STANDARD 99)
 
-add_executable(OS_ex2 ex21.c)
+add_executable(OS_ex2 ex21.c ex22.c)
