@@ -10,7 +10,7 @@
 
 #define SIZE 100
 
-int main(int argc, char *argv[]) {
+int main2(int argc, char *argv[]) {
     char *path1 = argv[1];
     char *path2 = argv[2];
     char buff1[SIZE] = {};
@@ -18,12 +18,12 @@ int main(int argc, char *argv[]) {
     int isCapDiff = 0;
     int fd1 = open(path1, O_RDONLY);
     if (fd1 < 0) {
-        perror("Error in ex21");
+        perror("Error in read");
         exit(-1);
     }
     int fd2 = open(path2, O_RDONLY);
     if (fd2 < 0) {
-        perror("Error in ex21");
+        perror("Error in read");
         exit(-1);
     }
 
@@ -32,7 +32,7 @@ int main(int argc, char *argv[]) {
     if(readNum2 < 0 || readNum1 < 0) {
         close(fd1);
         close(fd2);
-        perror("Error in ex21");
+        perror("Error in read");
         exit(-1);
     }
     char *endBuff1 = &buff1[readNum1];
@@ -60,7 +60,7 @@ int main(int argc, char *argv[]) {
             if(readNum1 < 0) {
                 close(fd1);
                 close(fd2);
-                perror("Error in ex21");
+                perror("Error in read");
                 exit(-1);
             }
             continue;
@@ -70,7 +70,7 @@ int main(int argc, char *argv[]) {
             if(readNum2 < 0) {
                 close(fd1);
                 close(fd2);
-                perror("Error in ex21");
+                perror("Error in read");
                 exit(-1);
             }
             continue;
