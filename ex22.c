@@ -80,7 +80,7 @@ int runStudent(char *root, char *dirPath, int inputFd, int outputFd) {
                     close(gccOut);
                     closedir(stuDir);
                     exit(-1);
-                } else if (readErr == 0)
+                } else if (findOutFile(tempCwd))
                     errorcode++;
 
             }
