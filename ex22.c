@@ -38,7 +38,7 @@ int findOutFile(char *dirPath) {
 }
 
 int runStudent(char *root, char *dirPath, int inputFd, int errorFd, char*outPutComp, char* compDir) {
-    int stat;
+    int stat, errStat;
     char tempPath[150];
     strcpy(tempPath, root);
     strcat(tempPath, "/");
@@ -66,7 +66,7 @@ int runStudent(char *root, char *dirPath, int inputFd, int errorFd, char*outPutC
             getcwd(tempCwd, LINE_LEN);
             exitCode++;
             dup2(errorFd, 2);
-            char *args[] = {"gcc", "-w", currEntry->d_name, "-o a.out", NULL};
+            char *args[] = {"gcc", "-w", currEntry->d_name, "-o", "a.out", NULL};
             pid_t pid = fork();
             if (pid == 0) {
                 int retCode = execvp(args[0], args);
@@ -76,9 +76,10 @@ int runStudent(char *root, char *dirPath, int inputFd, int errorFd, char*outPutC
                 }
             } else {
                 wait(&stat);
-                if(stat == 0) {
+                errStat = WEXITSTATUS(stat);
+                if(errStat == 0) {
                     exitCode++;
-                    int outputFd = open("out.txt", O_CREAT| S_IWUSR, 0666);
+                    int outputFd = open("out.txt", O_CREAT| O_RDWR, 0666);
                     dup2(inputFd, 0);
                     dup2(outputFd, 1);
                     char *argRunStudent[] = {"./a.out", NULL};
@@ -92,7 +93,8 @@ int runStudent(char *root, char *dirPath, int inputFd, int errorFd, char*outPutC
                     } else {
                         wait(&stat);
                         close(outputFd);
-                        char* argRunComp[] = {compDir, outPutComp, "out.txt", NULL};
+                        strcat(stuPath, "/out.txt");
+                        char* argRunComp[] = {compDir, outPutComp, stuPath, NULL};
                         pid = fork();
                         if(pid ==0) {
                             int retCode = execvp(argRunComp[0], argRunComp);
@@ -102,12 +104,13 @@ int runStudent(char *root, char *dirPath, int inputFd, int errorFd, char*outPutC
                             }
                         } else {
                             wait(&stat);
-                            remove("out.txt");
-                            if(stat == 1) {
+//                            remove("out.txt");
+                            errStat = WEXITSTATUS(stat);
+                            if(errStat == 1) {
                                 exitCode += 3;
-                            } else if (stat == 2) {
+                            } else if (errStat == 2) {
                                 exitCode++;
-                            }else if (stat ==3) {
+                            }else if (errStat ==3) {
                                 exitCode += 2;
                             } else {
                                 continue;
@@ -120,6 +123,7 @@ int runStudent(char *root, char *dirPath, int inputFd, int errorFd, char*outPutC
             }
         }
     }
+    lseek(inputFd, 0, SEEK_SET);
     dup2(oldIn, 0);
     dup2(oldOut, 1);
     dup2(save_err, 2);
