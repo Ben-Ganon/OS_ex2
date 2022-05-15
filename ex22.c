@@ -168,7 +168,7 @@ int main(int argc, char *argv[]) {
         exit(-1);
     }
 
-    int csvFd = open("results.csv", O_CREAT | O_TRUNC | O_RDWR, 0666);
+    int csvFd = open("results.csv", O_CREAT | O_APPEND | O_RDWR, 0666);
     if (csvFd < 0) {
         perror("Error in: open");
         closedir(rootDir);
@@ -176,7 +176,7 @@ int main(int argc, char *argv[]) {
         close(inputFd);
         exit(-1);
     }
-    int errorFd = open("errors.txt", O_CREAT | O_RDWR | O_TRUNC, 0666);
+    int errorFd = open("errors.txt", O_CREAT | O_RDWR | O_APPEND, 0666);
     if (errorFd < 0) {
         perror("Error in: open");
         closedir(rootDir);
