@@ -44,7 +44,7 @@ int runStudent(char *root, char *dirPath, int inputFd, int errorFd, char *outPut
 
 
     if (stuDir == NULL) {
-        perror("Not a valid directory1");
+        perror("Not a valid directory");
         exit(-1);
     }
     chdir(dirPath);
@@ -56,13 +56,16 @@ int runStudent(char *root, char *dirPath, int inputFd, int errorFd, char *outPut
             strcmp(getFileType(currEntry->d_name, 2), ".C") == 0) {
 
             exitCode++;
-            dup2(errorFd, 2);
+            if(dup2(errorFd, 2) <0)
+            {
+                perror("Error in: dup2");
+            }
             char *args[] = {"gcc", "-w", currEntry->d_name, "-o", "a.out", NULL};
             pid_t pid = fork();
             if (pid == 0) {
                 int retCode = execvp(args[0], args);
                 if (retCode < 0) {
-                    perror("Error execvp1");
+                    perror("Error in: execvp");
                     exit(-1);
                 }
             } else {
@@ -78,7 +81,7 @@ int runStudent(char *root, char *dirPath, int inputFd, int errorFd, char *outPut
                     if (pid == 0) {
                         int retCode = execvp(argRunStudent[0], argRunStudent);
                         if (retCode < 0) {
-                            perror("Error execvp2");
+                            perror("Error in: execvp");
                             exit(-1);
                         }
                     } else {
@@ -89,7 +92,7 @@ int runStudent(char *root, char *dirPath, int inputFd, int errorFd, char *outPut
                         if (pid == 0) {
                             int retCode = execvp(argRunComp[0], argRunComp);
                             if (retCode < 0) {
-                                perror("Error execvp3");
+                                perror("Error in: execvp");
                                 exit(-1);
                             }
                         } else {
@@ -113,13 +116,18 @@ int runStudent(char *root, char *dirPath, int inputFd, int errorFd, char *outPut
             }
         }
     }
-    lseek(inputFd, 0, SEEK_SET);
+    if(lseek(inputFd, 0, SEEK_SET) < 0)
+    {
+        perror("Error in: lseek");
+        exit(-1);
+    }
 //    remove("a.out");
 //    remove("out.txt");
-    dup2(oldIn, 0);
-    dup2(oldOut, 1);
-    dup2(save_err, 2);
-    closedir(stuDir);
+    if(dup2(oldIn, 0) < 0 || dup2(oldOut, 1) < 0 || dup2(save_err, 2) < 0 || closedir(stuDir) < 0)
+    {
+        perror("Error in: dup2");
+    }
+
     return exitCode;
 }
 
@@ -137,7 +145,7 @@ int main(int argc, char *argv[]) {
     }
     int readNum = read(fdConfig, fileRead, LINE_LEN * 3);
     if (readNum < 0) {
-        perror("Error in read");
+        perror("Error in: read");
         close(fdConfig);
         exit(-1);
     }
@@ -162,7 +170,7 @@ int main(int argc, char *argv[]) {
 
     int csvFd = open("results.csv", O_CREAT | O_TRUNC | O_RDWR, 0666);
     if (csvFd < 0) {
-        perror("Error in open");
+        perror("Error in: open");
         closedir(rootDir);
         close(fdConfig);
         close(inputFd);
@@ -170,7 +178,7 @@ int main(int argc, char *argv[]) {
     }
     int errorFd = open("errors.txt", O_CREAT | O_RDWR | O_TRUNC, 0666);
     if (errorFd < 0) {
-        perror("Error in open");
+        perror("Error in: open");
         closedir(rootDir);
         close(fdConfig);
         close(inputFd);
@@ -189,10 +197,6 @@ int main(int argc, char *argv[]) {
 
     chdir(root);
     getcwd(rootChdir, LINE_LEN);
-
-
-
-
 
 
     while ((currStd = readdir(rootDir)) != NULL) {
@@ -222,10 +226,19 @@ int main(int argc, char *argv[]) {
                 break;
         }
         strcat(csvStr, grade);
-        write(csvFd, csvStr, strlen(csvStr));
-        printf("%d, %s\n", status, currStd->d_name);
+        int err = write(csvFd, csvStr, strlen(csvStr));
+        if(err < 0)
+        {
+            close(csvFd);
+            closedir(rootDir);
+            close(fdConfig);
+            close(inputFd);
+            exit(-1);
+        }
+        
     }
     close(csvFd);
+    closedir(rootDir);
     close(errorFd);
     close(fdConfig);
 }

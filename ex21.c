@@ -10,7 +10,7 @@
 
 #define SIZE 100
 
-int main2(int argc, char *argv[]) {
+int main(int argc, char *argv[]) {
     char *path1 = argv[1];
     char *path2 = argv[2];
     char buff1[SIZE] = {};
