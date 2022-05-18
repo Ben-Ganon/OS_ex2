@@ -97,7 +97,8 @@ int runStudent(char *root, char *dirPath, int inputFd, int errorFd, char *outPut
                             }
                         } else {
                             wait(&stat);
-//                            remove("out.txt");
+                            remove("out.txt");
+                            remove("a.out");
                             errStat = WEXITSTATUS(stat);
                             if (errStat == 1) {
                                 exitCode += 3;
